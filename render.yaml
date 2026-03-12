@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: missile-alert-stats-backend
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: USE_MOCK_DATA
+        value: "false"
+      - key: OREF_PROXY_URL
+        sync: false
+
+  - type: static
+    name: missile-alert-stats-frontend
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://missile-alert-stats-backend.onrender.com/api/*
