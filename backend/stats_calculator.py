@@ -12,10 +12,35 @@ def parse_alert_date(date_str: str) -> datetime:
 
 
 def calculate_stats(alerts: list[dict], area: str) -> dict:
-    """Calculate event statistics for a specific area from a list of alerts.
+    """Calculate event statistics for a specific area or across all areas.
 
     Returns dict with events_count, total_shelter_seconds, and events list.
+    When area is "_ALL", returns the average of each area's statistics.
     """
+    if area == "_ALL":
+        # Get all unique areas from alerts
+        areas = sorted(set(a.get("data") for a in alerts if a.get("data")))
+        if not areas:
+            return {"events_count": 0, "total_shelter_seconds": 0, "events": []}
+
+        # Calculate stats for each area
+        all_events_counts = []
+        all_total_seconds = []
+        all_events = []
+
+        for a in areas:
+            area_stats = calculate_stats(alerts, a)
+            all_events_counts.append(area_stats["events_count"])
+            all_total_seconds.append(area_stats["total_shelter_seconds"])
+            all_events.extend(area_stats["events"])
+
+        # Return averages
+        return {
+            "events_count": sum(all_events_counts) / len(all_events_counts),
+            "total_shelter_seconds": sum(all_total_seconds) / len(all_total_seconds),
+            "events": all_events,
+        }
+
     # Filter alerts for the given area and sort by timestamp
     area_alerts = [a for a in alerts if a.get("data") == area]
     area_alerts.sort(key=lambda a: a["alertDate"])

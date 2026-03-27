@@ -146,5 +146,5 @@ if __name__ == "__main__":
         print(f"Usage: python scraper.py [day|week|month]")
         sys.exit(1)
     while True:
-        time.sleep(900)
+        time.sleep(9000)
         scrape_alerts(mode=mode)
