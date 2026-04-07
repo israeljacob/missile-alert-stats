@@ -69,3 +69,23 @@ def test_petach_tikva_events(sample_alerts):
     assert stats["events_count"] == 2
     # First: 14:00 - 14:05 = 300s, Second: 08:00 - 08:02:30 = 150s
     assert stats["total_shelter_seconds"] == 300 + 150
+
+
+def test_all_areas_average(sample_alerts):
+    """Test that '_ALL' returns the average of each area's statistics."""
+    # Get all unique areas from sample data
+    areas = sorted(set(a.get("data") for a in sample_alerts if a.get("data")))
+
+    # Calculate stats for each area
+    individual_stats = [calculate_stats(sample_alerts, a) for a in areas]
+
+    # Calculate average stats
+    avg_events_count = sum(s["events_count"] for s in individual_stats) / len(individual_stats)
+    avg_total_seconds = sum(s["total_shelter_seconds"] for s in individual_stats) / len(individual_stats)
+
+    # Get _ALL stats
+    all_stats = calculate_stats(sample_alerts, "_ALL")
+
+    # Verify averages are correct (with small tolerance for floating point)
+    assert abs(all_stats["events_count"] - avg_events_count) < 0.01
+    assert abs(all_stats["total_shelter_seconds"] - avg_total_seconds) < 0.01
