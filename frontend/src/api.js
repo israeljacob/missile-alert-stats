@@ -1,4 +1,4 @@
-const BASE_URL = '/api'
+const BASE_URL = 'https://missile-alert-stats-1.onrender.com/api'
 
 export async function fetchAreas() {
   const res = await fetch(`${BASE_URL}/areas`)
