@@ -5,7 +5,7 @@ import ijson
 from collections import defaultdict
 
 INPUT_FILE = "backend/alerts_history.json"
-OUTPUT_DIR = "settlements"
+OUTPUT_DIR = "settlements2"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -16,6 +16,7 @@ buffers = defaultdict(list)
 BUFFER_SIZE = 1000
 
 def flush(settlement):
+    
     filepath = os.path.join(OUTPUT_DIR, f"{settlement}.json")
 
     if os.path.exists(filepath):
@@ -27,7 +28,7 @@ def flush(settlement):
     existing.extend(buffers[settlement])
 
     with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(existing, f, ensure_ascii=False)
+        json.dump(existing, f, ensure_ascii=False, indent=2)
 
     buffers[settlement].clear()
 

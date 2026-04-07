@@ -3,7 +3,7 @@
 from datetime import datetime
 
 ALERT_START_TITLES = {"ירי רקטות וטילים", "חדירת כלי טיס עוין"}
-ALERT_END_TITLES = {"האירוע הסתיים", "ירי רקטות וטילים -  האירוע הסתיים"}
+ALERT_END_TITLES = {"האירוע הסתיים", "ירי רקטות וטילים -  האירוע הסתיים", "ניתן לצאת מהמרחב המוגן אך יש להישאר בקרבתו"}
 
 
 def parse_alert_date(date_str: str) -> datetime:
@@ -19,9 +19,18 @@ def calculate_stats(alerts: list[dict], area: str) -> dict:
     # Filter alerts for the given area and sort by timestamp
     area_alerts = [a for a in alerts if a.get("data") == area]
     area_alerts.sort(key=lambda a: a["alertDate"])
+    events_count = 0
+
+    i = 0
+    while i < len(area_alerts):
+        alert = area_alerts[i]
+        if alert.get("title") in ALERT_START_TITLES:
+            events_count += 1
+        i += 1
 
     events = []
     i = 0
+    j = 0
     while i < len(area_alerts):
         alert = area_alerts[i]
         if alert.get("title") in ALERT_START_TITLES:
@@ -34,17 +43,25 @@ def calculate_stats(alerts: list[dict], area: str) -> dict:
                     break
             if end_time is not None:
                 duration = (end_time - start_time).total_seconds()
-                events.append({
-                    "start": alert["alertDate"],
+                if duration > 18000:
+                    events.append({
+                        "start": alert["alertDate"],
                     "end": area_alerts[j]["alertDate"],
-                    "duration_seconds": duration,
+                    "duration_seconds": (end_time - parse_alert_date(area_alerts[j - 1]["alertDate"])).total_seconds() + 10,
                     "type": alert["title"],
+                    })
+                else:
+                    events.append({
+                        "start": alert["alertDate"],
+                        "end": area_alerts[j]["alertDate"],
+                        "duration_seconds": duration,
+                        "type": alert["title"],
                 })
-        i += 1
+        i = max(j + 1, i + 1)
 
     total_seconds = sum(e["duration_seconds"] for e in events)
     return {
-        "events_count": len(events),
+        "events_count": events_count,
         "total_shelter_seconds": total_seconds,
         "events": events,
     }
