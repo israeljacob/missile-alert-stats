@@ -37,7 +37,7 @@ async def get_areas():
 
 @app.get("/api/stats")
 async def get_stats(
-    area: str = Query(..., description="Area name in Hebrew"),
+    area: str = Query("_ALL", description="Area name in Hebrew or '_ALL' for all areas average"),
     range: str = Query("1d", description="Time range: 1d, 1w, or custom"),
     from_date: str | None = Query(None, alias="from", description="Start date (ISO format) for custom range"),
     to_date: str | None = Query(None, alias="to", description="End date (ISO format) for custom range"),

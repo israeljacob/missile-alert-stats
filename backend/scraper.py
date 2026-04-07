@@ -125,6 +125,9 @@ def scrape_alerts(mode: str = "month", output_path: Path = OUTPUT_PATH) -> list[
 
     # Save
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "r", encoding="utf-8") as f:
+        existing = json.load(f)
+    existing.extend(alerts_list)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(alerts_list, f, ensure_ascii=False, indent=2)
 
@@ -142,4 +145,6 @@ if __name__ == "__main__":
     if mode not in MODE_MAP:
         print(f"Usage: python scraper.py [day|week|month]")
         sys.exit(1)
-    scrape_alerts(mode=mode)
+    while True:
+        time.sleep(9000)
+        scrape_alerts(mode=mode)
